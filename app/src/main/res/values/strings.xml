@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Jacob Bakery</string>
+
+    <string name="title_activity_details">DetailsActivity</string>
+    <string name="recipe_background_image">recipe background image</string>
+    <string name="header_image">Header Image</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="plus_bullet">Plus Bullet</string>
+    <string name="steps">Steps</string>
+    <string name="main_activity_background_image">Main activity background image</string>
+    <string name="scrim">Scrim</string>
+
+    <string name="previous_step">Previous Step</string>
+    <string name="next_step">Next Step</string>
+
+    <string name="appwidget_text">Ingredients Widget</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+</resources>
