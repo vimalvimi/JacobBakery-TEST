@@ -17,6 +17,7 @@ import com.roxybakestudio.jacobbakery.helper.Utils;
 import com.roxybakestudio.jacobbakery.model.Recipe;
 import com.roxybakestudio.jacobbakery.rest.RecipeService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
     @BindView(R.id.no_internet_error_text)
     TextView mTextViewNoInternet;
 
+    final List<Recipe> testList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
         if (Utils.isNetworkAvailable(this)) {
             getRecyclerView();
             getFeed();
+            Log.d(TAG, "onCreate: LIST FINAL " + testList.size());
         } else {
             getError();
         }
@@ -62,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
 
         recipeAdapter.setClickListener(this);
         mRecyclerView.setAdapter(recipeAdapter);
+
+        Log.d(TAG, "onCreate: RECYCLER VIEW CREATED");
     }
 
     private void getFeed() {
@@ -76,7 +82,14 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
                     List<Recipe> recipes = response.body();
 
                     for (int i = 0; i < recipes.size(); i++) {
+
+
                         Recipe recipe = recipes.get(i);
+
+                        testList.add(recipe);
+
+                        Log.d(TAG, "onResponse: ASYMN : " + testList.size());
+
                         recipeAdapter.addRecipe(recipe);
                     }
                 } else {
