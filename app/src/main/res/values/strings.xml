@@ -8,7 +8,7 @@
     <string name="plus_bullet">Plus Bullet</string>
     <string name="steps">Steps</string>
     <string name="main_activity_background_image">Main activity background image</string>
-    <string name="scrim">Scrim</string>
+    <string name="scrim">ScrimScreen</string>
 
     <string name="previous_step">Previous Step</string>
     <string name="next_step">Next Step</string>
