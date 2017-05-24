@@ -2,6 +2,7 @@ package com.roxybakestudio.jacobbakery.helper;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -62,5 +63,12 @@ public class Utils {
 
     public static String doubleToString(Double doubleNumber) {
         return String.valueOf(doubleNumber.intValue());
+    }
+    public static int getScreenWidth(Context context) {
+        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 }

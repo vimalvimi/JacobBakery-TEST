@@ -1,9 +1,7 @@
 package com.roxybakestudio.jacobbakery.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,23 +11,22 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.roxybakestudio.jacobbakery.R;
-import com.roxybakestudio.jacobbakery.data.RecipeContract;
 import com.roxybakestudio.jacobbakery.helper.Utils;
-import com.roxybakestudio.jacobbakery.ui.StepsListActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeMain.INDEX_RECIPE_ID;
 import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeMain.INDEX_RECIPE_NAME;
 
-public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.MyViewHolder> {
+public class RecipeAdapterWidget extends RecyclerView.Adapter<RecipeAdapterWidget.MyViewHolder> {
 
     private Cursor mCursor;
     private Context mContext;
 
+    private ClickListener mClickListener;
+
     @Override
-    public RecipeAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecipeAdapterWidget.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_recipe, parent, false);
 
@@ -37,7 +34,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.MyViewHold
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
+    public void onBindViewHolder(MyViewHolder holder, int position) {
         mCursor.moveToPosition(position);
 
         holder.mTextView.setText(mCursor.getString(INDEX_RECIPE_NAME));
@@ -45,19 +42,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.MyViewHold
                 .load(Utils.getImage(mCursor.getString(INDEX_RECIPE_NAME)))
                 .crossFade()
                 .into(holder.mImageView);
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCursor.moveToPosition(holder.getAdapterPosition());
-                Uri uri = RecipeContract.RecipeMain.BuildRecipeUriWithId(mCursor.getLong(INDEX_RECIPE_ID));
-
-                Intent intent = new Intent(mContext, StepsListActivity.class);
-                intent.setData(uri);
-                intent.putExtra("title", mCursor.getString(INDEX_RECIPE_NAME));
-                mContext.startActivity(intent);
-            }
-        });
     }
 
     @Override
@@ -69,7 +53,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.MyViewHold
         }
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @BindView(R.id.main_recipe_name)
         TextView mTextView;
@@ -79,15 +63,28 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.MyViewHold
         MyViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mClickListener != null) {
+                mClickListener.itemClicked(v, getAdapterPosition());
+            }
         }
     }
 
-    public RecipeAdapter(Context context) {
+    public RecipeAdapterWidget(Context context, ClickListener clickListener) {
+        mClickListener = clickListener;
         mContext = context;
     }
 
     public void swapCursor(Cursor newCursor) {
         mCursor = newCursor;
         notifyDataSetChanged();
+    }
+
+    public interface ClickListener {
+        void itemClicked(View view, int position);
     }
 }

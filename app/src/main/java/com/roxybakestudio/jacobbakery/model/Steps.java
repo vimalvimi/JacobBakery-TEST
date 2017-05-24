@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Steps implements Serializable {
 
     @Expose
-    private String  id;
+    private String id;
     @Expose
     private String shortDescription;
     @Expose
@@ -18,7 +18,7 @@ public class Steps implements Serializable {
     @Expose
     private String thumbnailURL;
 
-    public Steps(String  id, String shortDescription, String description,
+    public Steps(String id, String shortDescription, String description,
                  String videoURL, String thumbnailURL) {
         this.id = id;
         this.shortDescription = shortDescription;

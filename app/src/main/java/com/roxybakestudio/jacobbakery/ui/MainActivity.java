@@ -1,34 +1,33 @@
 package com.roxybakestudio.jacobbakery.ui;
 
-import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.roxybakestudio.jacobbakery.R;
 import com.roxybakestudio.jacobbakery.adapter.RecipeAdapter;
+import com.roxybakestudio.jacobbakery.data.RecipeContract;
 import com.roxybakestudio.jacobbakery.helper.Utils;
-import com.roxybakestudio.jacobbakery.model.Recipe;
-import com.roxybakestudio.jacobbakery.rest.RecipeService;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.roxybakestudio.jacobbakery.rest.RetrofitCall;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements RecipeAdapter.ClickListener {
+public class MainActivity
+        extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "MainActivity";
+
+    private static final int RECIPE_LOADER_ID = 501;
 
     private RecipeAdapter recipeAdapter;
 
@@ -38,8 +37,6 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
     @BindView(R.id.no_internet_error_text)
     TextView mTextViewNoInternet;
 
-    final List<Recipe> testList = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,9 +44,9 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
         ButterKnife.bind(this);
 
         if (Utils.isNetworkAvailable(this)) {
+            RetrofitCall.getRecipes(this);
+            getSupportLoaderManager().initLoader(RECIPE_LOADER_ID, null, this);
             getRecyclerView();
-            getFeed();
-            Log.d(TAG, "onCreate: LIST FINAL " + testList.size());
         } else {
             getError();
         }
@@ -63,62 +60,55 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.Cli
 
         mRecyclerView.setLayoutManager(layoutManager);
         recipeAdapter = new RecipeAdapter(this);
-
-        recipeAdapter.setClickListener(this);
         mRecyclerView.setAdapter(recipeAdapter);
-
-        Log.d(TAG, "onCreate: RECYCLER VIEW CREATED");
     }
 
-    private void getFeed() {
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        RecipeService recipeService = RecipeService.retrofit.create(RecipeService.class);
-        Call<List<Recipe>> listCall = recipeService.getAllRecipes();
-        listCall.enqueue(new Callback<List<Recipe>>() {
-            @Override
-            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
+        String[] projection = {
+                RecipeContract.RecipeMain.COLUMN_NAME,
+                RecipeContract.RecipeMain.COLUMN_RECIPE_ID,
+                RecipeContract.RecipeMain.COLUMN_SERVINGS,
+        };
 
-                if (response.isSuccessful()) {
-                    List<Recipe> recipes = response.body();
+        switch (id) {
+            case RECIPE_LOADER_ID:
+                return new CursorLoader(this,
+                        RecipeContract.RecipeMain.CONTENT_URI,
+                        projection,
+                        null,
+                        null,
+                        null);
+            default:
+                throw new RuntimeException("Loader is not Implemented: " + id);
+        }
+    }
 
-                    for (int i = 0; i < recipes.size(); i++) {
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-
-                        Recipe recipe = recipes.get(i);
-
-                        testList.add(recipe);
-
-                        Log.d(TAG, "onResponse: ASYMN : " + testList.size());
-
-                        recipeAdapter.addRecipe(recipe);
-                    }
-                } else {
-                    Log.d(TAG, "RESPONSE CODE ERROR " + response.code());
+        switch (loader.getId()) {
+            case RECIPE_LOADER_ID:
+                recipeAdapter.swapCursor(data);
+                if (data != null && data.getCount() != 0) {
+                    data.moveToFirst();
                 }
-            }
-
-            @Override
-            public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                Log.d(TAG, "onFailure: " + t.getMessage());
-                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                break;
+            default:
+                throw new RuntimeException("Loader not Implemented: " + loader.getId());
+        }
     }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        recipeAdapter.swapCursor(null);
+    }
+
 
     private void getError() {
         mRecyclerView.setVisibility(View.GONE);
         mTextViewNoInternet.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void itemClicked(View view, int position) {
-        Log.d(TAG, "itemClicked: " + position);
-
-        Recipe recipe = recipeAdapter.getRecipes().get(position);
-
-        Intent intent = new Intent(this, StepsListActivity.class);
-        intent.putExtra("recipe", recipe);
-        startActivity(intent);
     }
 
     public int getScreenWidth() {

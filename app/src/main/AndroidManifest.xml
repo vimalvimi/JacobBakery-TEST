@@ -12,6 +12,35 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppThemeTrans">
+
+        //Widget
+        <activity android:name=".widget.IngredientConfiguration">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+
+        <receiver android:name=".widget.IngredientWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ingredient_widget_info"/>
+        </receiver>
+
+        <service
+            android:name=".widget.ListViewService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+
+        //Provider
+        <provider
+            android:name=".data.RecipeProvider"
+            android:authorities="com.roxybakestudio.jacobbakery"
+            android:exported="true"/>
+
+        //Activities
         <activity
             android:name=".ui.MainActivity"
             android:theme="@style/AppThemeTrans">
@@ -24,28 +53,11 @@
         <activity
             android:name=".ui.StepsListActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme">
-        </activity>
+            android:theme="@style/AppTheme"/>
         <activity
             android:name=".ui.StepActivity"
             android:parentActivityName=".ui.StepActivity"
             android:theme="@style/AppTheme"/>
-
-        <receiver android:name=".widget.IngredientsWidget">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/ingredients_widget_info"/>
-        </receiver>
-
-        <activity android:name=".widget.IngredientsWidgetConfigureActivity">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

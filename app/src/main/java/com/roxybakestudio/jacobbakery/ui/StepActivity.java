@@ -1,20 +1,23 @@
 package com.roxybakestudio.jacobbakery.ui;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
 import com.roxybakestudio.jacobbakery.R;
-import com.roxybakestudio.jacobbakery.model.Recipe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class StepActivity extends AppCompatActivity {
+import static com.roxybakestudio.jacobbakery.ui.StepFragment.A_CURRENT_STEP_POSITION;
+import static com.roxybakestudio.jacobbakery.ui.StepFragment.A_CURRENT_URI;
 
-    public static final String A_CURRENT_RECIPE = "a_current_recipe";
-    public static final String A_CURRENT_STEP_POSITION = "a_position";
+public class StepActivity
+        extends AppCompatActivity {
+
+    private static final String TAG = "StepActivity";
 
     @BindView(R.id.previous_step)
     TextView previousStep;
@@ -22,8 +25,9 @@ public class StepActivity extends AppCompatActivity {
     @BindView(R.id.next_step)
     TextView nextStep;
 
-    Recipe currentRecipe;
     int currentStepPosition;
+    int currentStepSize;
+    Uri currentRecipeUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +38,15 @@ public class StepActivity extends AppCompatActivity {
         previousStep.setText(R.string.previous_step);
         nextStep.setText(R.string.next_step);
 
-        currentRecipe = (Recipe) getIntent().getSerializableExtra(A_CURRENT_RECIPE);
-        currentStepPosition = getIntent().getIntExtra(A_CURRENT_STEP_POSITION, 0);
-
-        setTitle(currentRecipe.getName() + " Step #" + currentStepPosition);
-
-        if (savedInstanceState == null) {
-            getFragment();
+        if (getIntent().hasExtra("step_position")) {
+            String currentStepPositionString = getIntent().getStringExtra("step_position");
+            currentStepPosition = Integer.parseInt(currentStepPositionString);
+            currentStepSize = getIntent().getIntExtra("size_steps", 0);
         }
+        if (getIntent().getData() != null) {
+            currentRecipeUri = getIntent().getData();
+        }
+        getFragment();
     }
 
     public void moveToPrevious(View view) {
@@ -57,14 +62,14 @@ public class StepActivity extends AppCompatActivity {
     public void getFragment() {
 
         if (currentStepPosition == 0) {
-            setTitle(currentRecipe.getName() + " Introduction");
+            setTitle("Introduction");
         } else {
-            setTitle(currentRecipe.getName() + " Step #" + currentStepPosition);
+            setTitle("Step #" + currentStepPosition);
         }
 
         Bundle args = new Bundle();
-        args.putInt(StepFragment.F_CURRENT_STEP_POSITION, currentStepPosition);
-        args.putSerializable(StepFragment.F_CURRENT_RECIPE, currentRecipe);
+        args.putInt(A_CURRENT_STEP_POSITION, currentStepPosition);
+        args.putParcelable(A_CURRENT_URI, currentRecipeUri);
 
         StepFragment stepFragment = new StepFragment();
         stepFragment.setArguments(args);
@@ -72,17 +77,16 @@ public class StepActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.step_details_container_a, stepFragment)
                 .commit();
-
         getButtons();
     }
 
+
     private void getButtons() {
-        if (currentRecipe.getSteps().get(currentStepPosition) == currentRecipe.getSteps().get(0)) {
+        if (currentStepPosition == 0) {
             previousStep.setVisibility(View.INVISIBLE);
             nextStep.setVisibility(View.VISIBLE);
 
-        } else if (currentRecipe.getSteps().get(currentStepPosition)
-                == currentRecipe.getSteps().get(currentRecipe.getSteps().size() - 1)) {
+        } else if (currentStepPosition == currentStepSize - 1) {
             previousStep.setVisibility(View.VISIBLE);
             nextStep.setVisibility(View.INVISIBLE);
 

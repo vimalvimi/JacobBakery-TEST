@@ -1,5 +1,7 @@
 package com.roxybakestudio.jacobbakery.adapter;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +10,23 @@ import android.widget.TextView;
 
 import com.roxybakestudio.jacobbakery.R;
 import com.roxybakestudio.jacobbakery.helper.Utils;
-import com.roxybakestudio.jacobbakery.model.Ingredients;
 
-import java.util.ArrayList;
-import java.util.List;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeIngredients.INDEX_COLUMN_INGREDIENT;
+import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeIngredients.INDEX_COLUMN_MEASURE;
+import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeIngredients.INDEX_COLUMN_QUANTITY;
 
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.MyViewHolder> {
 
-    private List<Ingredients> mIngredients = new ArrayList<>();
+
+    private Cursor mCursor;
+    private Context mContext;
+
+    public IngredientsAdapter(Context context) {
+        mContext = context;
+    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -27,31 +38,39 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Ingredients ingredients = mIngredients.get(position);
 
-        holder.quantity.setText(Utils.doubleToString(ingredients.getQuantity()));
-        holder.measure.setText(Utils.getMeasure(ingredients.getMeasure()));
-        holder.ingredient.setText(Utils.capitalizeFirst(ingredients.getIngredient()));
+        mCursor.moveToPosition(position);
+
+        holder.quantity.setText(mCursor.getString(INDEX_COLUMN_QUANTITY));
+        holder.measure.setText(Utils.getMeasure(mCursor.getString(INDEX_COLUMN_MEASURE)));
+        holder.ingredient.setText(Utils.capitalizeFirst(mCursor.getString(INDEX_COLUMN_INGREDIENT)));
     }
 
     @Override
     public int getItemCount() {
-        return mIngredients.size();
-    }
-
-    class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView quantity, measure, ingredient;
-
-        private MyViewHolder(View itemView) {
-            super(itemView);
-            quantity = (TextView) itemView.findViewById(R.id.cv_quantity);
-            measure = (TextView) itemView.findViewById(R.id.cv_measure);
-            ingredient = (TextView) itemView.findViewById(R.id.cv_ingredient);
+        if (mCursor != null) {
+            return mCursor.getCount();
+        } else {
+            return 0;
         }
     }
 
-    public void addIngredient(List<Ingredients> ingredient) {
-        mIngredients = ingredient;
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.cv_quantity)
+        TextView quantity;
+        @BindView(R.id.cv_measure)
+        TextView measure;
+        @BindView(R.id.cv_ingredient)
+        TextView ingredient;
+
+        private MyViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    public void swapCursor(Cursor newCursor) {
+        mCursor = newCursor;
         notifyDataSetChanged();
     }
 }

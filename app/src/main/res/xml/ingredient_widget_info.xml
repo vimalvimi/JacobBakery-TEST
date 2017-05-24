@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:configure="com.roxybakestudio.jacobbakery.widget.IngredientsWidgetConfigureActivity"
-                    android:initialKeyguardLayout="@layout/ingredients_widget"
-                    android:initialLayout="@layout/ingredients_widget"
+                    android:configure="com.roxybakestudio.jacobbakery.widget.IngredientConfiguration"
+                    android:initialKeyguardLayout="@layout/ingredient_widget"
+                    android:initialLayout="@layout/ingredient_widget"
                     android:minHeight="110dp"
                     android:minWidth="250dp"
                     android:previewImage="@drawable/example_appwidget_preview"
-                    android:resizeMode="vertical"
+                    android:resizeMode="horizontal|vertical"
                     android:updatePeriodMillis="86400000"
                     android:widgetCategory="home_screen">
 </appwidget-provider>
