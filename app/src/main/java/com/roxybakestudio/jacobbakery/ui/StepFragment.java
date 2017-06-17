@@ -1,6 +1,5 @@
 package com.roxybakestudio.jacobbakery.ui;
 
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,13 +9,24 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.roxybakestudio.jacobbakery.R;
 import com.roxybakestudio.jacobbakery.adapter.IngredientsAdapter;
 import com.roxybakestudio.jacobbakery.data.RecipeContract;
@@ -32,7 +42,6 @@ public class StepFragment extends Fragment
     public static final String A_CURRENT_URI = "a_current_uri";
     public static final String A_CURRENT_STEP_POSITION = "a_position";
 
-    public String currentRecipeStepPosition;
     public String currentRecipeStepDescription;
     public String currentRecipeStepVideoUrl;
 
@@ -41,8 +50,6 @@ public class StepFragment extends Fragment
 
     private static final int STEP_LOADER_ID = 701;
     private static final int INGREDIENTS_LOADER_ID = 801;
-
-    private static Uri currentVideoUri;
 
     IngredientsAdapter ingredientsAdapter;
 
@@ -60,7 +67,9 @@ public class StepFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         currentStepPosition = getArguments().getInt(A_CURRENT_STEP_POSITION);
+        Log.d(TAG, "onCreate: " + currentStepPosition);
         currentRecipeUri = getArguments().getParcelable(A_CURRENT_URI);
+        Log.d(TAG, "onCreate: " + currentRecipeUri);
     }
 
     @Override
@@ -70,15 +79,10 @@ public class StepFragment extends Fragment
 
         getLoaderManager().initLoader(STEP_LOADER_ID, null, this);
 
-
-//        currentVideoUri = Uri.parse(currentRecipeStepVideoUrl);
-
         if (currentStepPosition == 0) {
             stepDisc.setVisibility(View.GONE);
             getLoaderManager().initLoader(INGREDIENTS_LOADER_ID, null, this);
         }
-
-//        videoPlay();
         return view;
     }
 
@@ -103,6 +107,7 @@ public class StepFragment extends Fragment
 
             case INGREDIENTS_LOADER_ID:
                 String[] projectionIngredients = {
+                        RecipeContract.RecipeIngredients.COLUMN_RECIPE_NAME,
                         RecipeContract.RecipeIngredients.COLUMN_QUANTITY,
                         RecipeContract.RecipeIngredients.COLUMN_MEASURE,
                         RecipeContract.RecipeIngredients.COLUMN_INGREDIENT
@@ -128,9 +133,10 @@ public class StepFragment extends Fragment
             case STEP_LOADER_ID:
                 data.moveToPosition(currentStepPosition);
                 currentRecipeStepDescription = data.getString(0);
-                currentRecipeStepVideoUrl = data.getColumnName(1);
-                stepDisc.setText(currentRecipeStepDescription);
+                currentRecipeStepVideoUrl = data.getString(1);
 
+                stepDisc.setText(currentRecipeStepDescription);
+                videoPlay(currentRecipeStepVideoUrl);
                 break;
             case INGREDIENTS_LOADER_ID:
                 getIngredients(data);
@@ -143,64 +149,70 @@ public class StepFragment extends Fragment
     }
 
     private void getIngredients(Cursor data) {
-        ingredientsAdapter = new IngredientsAdapter(getContext());
+        GridLayoutManager gridLayoutManager =
+                new GridLayoutManager(getContext(), 1);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), getScreenWidth());
+        ingredientsAdapter = new IngredientsAdapter(getContext());
         rvIngredients.setLayoutManager(gridLayoutManager);
 
         rvIngredients.setAdapter(ingredientsAdapter);
         ingredientsAdapter.swapCursor(data);
     }
 
-//    private void videoPlay() {
-//        if (currentVideoUri != null) {
-//            mPlayerView.setVisibility(View.VISIBLE);
-//            initializePlayer(currentVideoUri);
-//        } else {
-//            mPlayerView.setVisibility(View.GONE);
-//        }
-//
-//        Log.d(TAG, "videoPlay: CURRENT URI = " + currentVideoUri);
-//    }
-//
-//    private void initializePlayer(Uri mediaUri) {
-//        if (mExoPlayer == null) {
-//            // Create an instance of the ExoPlayer.
-//            TrackSelector trackSelector = new DefaultTrackSelector();
-//            LoadControl loadControl = new DefaultLoadControl();
-//            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
-//            mPlayerView.setPlayer(mExoPlayer);
-//
-//            // Prepare the MediaSource.
-//            String userAgent = Util.getUserAgent(getContext(), "CurrentRecipeStep");
-//            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
-//                    getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
-//            mExoPlayer.prepare(mediaSource);
-//            mExoPlayer.setPlayWhenReady(true);
-//        }
-//    }
-
-
-//    private void releasePlayer() {
-//        mExoPlayer.stop();
-//        mExoPlayer.release();
-//        mExoPlayer = null;
-//    }
-//
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        if (mExoPlayer != null) {
-//            releasePlayer();
-//        }
-//    }
-
-    public int getScreenWidth() {
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return 1;
+    private void videoPlay(String currentVideoUri) {
+        if (currentVideoUri.isEmpty()) {
+            mPlayerView.setVisibility(View.GONE);
         } else {
-            return 2;
+            mPlayerView.setVisibility(View.VISIBLE);
+            initializePlayer(Uri.parse(currentVideoUri));
         }
+    }
+
+    private void initializePlayer(Uri mediaUri) {
+        if (mExoPlayer == null) {
+            // Create an instance of the ExoPlayer.
+            TrackSelector trackSelector = new DefaultTrackSelector();
+            LoadControl loadControl = new DefaultLoadControl();
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
+            mPlayerView.setPlayer(mExoPlayer);
+
+            // Prepare the MediaSource.
+            String userAgent = Util.getUserAgent(getContext(), "CurrentRecipeStep");
+            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
+                    getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
+            mExoPlayer.prepare(mediaSource);
+            mExoPlayer.setPlayWhenReady(true);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mExoPlayer != null) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mExoPlayer != null) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mExoPlayer != null) {
+            releasePlayer();
+        }
+    }
+
+    private void releasePlayer() {
+        mExoPlayer.stop();
+        mExoPlayer.release();
+        mExoPlayer = null;
     }
 }
 

@@ -20,7 +20,6 @@ import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeIngredien
 
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.MyViewHolder> {
 
-
     private Cursor mCursor;
     private Context mContext;
 

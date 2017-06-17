@@ -25,6 +25,8 @@ import static com.roxybakestudio.jacobbakery.data.RecipeContract.RecipeMain.INDE
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.MyViewHolder> {
 
+    private static final String TAG = "RecipeAdapter";
+
     private Cursor mCursor;
     private Context mContext;
 

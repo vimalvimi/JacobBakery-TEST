@@ -9,6 +9,7 @@ import android.widget.RemoteViewsService;
 
 import com.roxybakestudio.jacobbakery.R;
 import com.roxybakestudio.jacobbakery.data.RecipeContract;
+import com.roxybakestudio.jacobbakery.helper.Utils;
 import com.roxybakestudio.jacobbakery.rest.RetrofitCall;
 
 public class ListViewService extends RemoteViewsService {
@@ -80,10 +81,9 @@ class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         String ingredient = mCursor.getString(RecipeContract.RecipeIngredients.INDEX_COLUMN_INGREDIENT);
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.item_ingredients_widget);
-        views.setTextViewText(R.id.widget_listview_title, title);
         views.setTextViewText(R.id.widget_ingredient_quantity_listitem, quantity);
         views.setTextViewText(R.id.widget_ingredient_measure_listitem, measure);
-        views.setTextViewText(R.id.widget_ingredient_listitem, ingredient);
+        views.setTextViewText(R.id.widget_ingredient_listitem, Utils.capitalizeFirst(ingredient));
         return views;
     }
 

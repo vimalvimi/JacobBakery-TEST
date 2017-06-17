@@ -1,6 +1,5 @@
 package com.roxybakestudio.jacobbakery.ui;
 
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -56,7 +55,7 @@ public class MainActivity
         mTextViewNoInternet.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);
 
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, getScreenWidth());
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, Utils.getScreenWidth(this));
 
         mRecyclerView.setLayoutManager(layoutManager);
         recipeAdapter = new RecipeAdapter(this);
@@ -109,13 +108,5 @@ public class MainActivity
     private void getError() {
         mRecyclerView.setVisibility(View.GONE);
         mTextViewNoInternet.setVisibility(View.VISIBLE);
-    }
-
-    public int getScreenWidth() {
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            return 1;
-        } else {
-            return 2;
-        }
     }
 }

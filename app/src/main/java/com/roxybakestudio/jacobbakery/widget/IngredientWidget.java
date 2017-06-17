@@ -22,17 +22,6 @@ public class IngredientWidget extends AppWidgetProvider {
         super.onReceive(context, intent);
     }
 
-    private static RemoteViews getListRemoteView(Context context) {
-
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.ingredient_widget);
-
-        Intent intent = new Intent(context, ListViewService.class);
-        remoteViews.setRemoteAdapter(R.id.widget_listview, intent);
-
-        remoteViews.setEmptyView(R.id.widget_listview, R.id.empty_view);
-        return remoteViews;
-    }
-
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
@@ -40,9 +29,14 @@ public class IngredientWidget extends AppWidgetProvider {
 
         String recipeIdInt = recipeId.toString();
 
-        // Construct the RemoteViews object
-        RemoteViews views = getListRemoteView(context);
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.ingredient_widget);
+
+        Intent intent = new Intent(context, ListViewService.class);
+        remoteViews.setRemoteAdapter(R.id.widget_listview, intent);
+
+        remoteViews.setEmptyView(R.id.widget_listview, R.id.empty_view);
+
+        appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
     }
 
     @Override

@@ -52,7 +52,6 @@ public class RecipeContract {
         public static final int INDEX_COLUMN_MEASURE = 2;
         public static final int INDEX_COLUMN_INGREDIENT = 3;
 
-
         public static Uri buildIngredientUriWithId(long id) {
             return CONTENT_URI.buildUpon()
                     .appendPath(Long.toString(id))
@@ -74,8 +73,8 @@ public class RecipeContract {
         public static final String COLUMN_VIDEO = "video";
 
         public static final int INDEX_STEP_RECIPE_ID = 0;
-        public static final int INDEX_SHORT_DESCRIPTION = 1;
-        public static final int INDEX_STEP_ID = 2;
+        public static final int INDEX_STEP_ID = 1;
+        public static final int INDEX_SHORT_DESCRIPTION = 2;
 
         public static Uri BuildStepUriWithId(long id) {
             return CONTENT_URI.buildUpon()

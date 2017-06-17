@@ -57,7 +57,6 @@
         <activity
             android:name=".ui.StepActivity"
             android:parentActivityName=".ui.StepActivity"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppThemeNoBar"/>
     </application>
-
 </manifest>

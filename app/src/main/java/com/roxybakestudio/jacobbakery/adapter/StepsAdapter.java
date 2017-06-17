@@ -60,7 +60,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.MyViewHolder
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         stepCursor.moveToPosition(position);
 
-        holder.stepNumber.setText("Step #" + stepCursor.getString(INDEX_STEP_RECIPE_ID) + " ");
+        holder.stepNumber.setText("Step #" + stepCursor.getString(INDEX_STEP_ID) + " ");
         holder.shortDescription.setText(stepCursor.getString(INDEX_SHORT_DESCRIPTION));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -114,7 +114,6 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.MyViewHolder
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
-
     }
 
     @Override

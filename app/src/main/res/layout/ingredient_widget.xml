@@ -11,11 +11,12 @@
         android:orientation="vertical">
 
         <TextView
+            android:padding="4dp"
+            android:text="@string/ingredients"
             android:id="@+id/widget_listview_title"
-            style="@style/Base.TextAppearance.AppCompat.Medium"
+            style="@style/TextAppearance.AppCompat.Small"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="Pizza"/>
+            android:layout_height="wrap_content"/>
 
         <ListView
             android:id="@+id/widget_listview"
@@ -29,5 +30,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="@string/add_widget"/>
+        android:text="@string/add_widget"  />
 </FrameLayout>

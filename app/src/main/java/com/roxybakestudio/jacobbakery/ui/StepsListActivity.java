@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.roxybakestudio.jacobbakery.R;
 import com.roxybakestudio.jacobbakery.adapter.StepsAdapter;
@@ -59,6 +60,9 @@ public class StepsListActivity
 
         //Loader
         getSupportLoaderManager().initLoader(STEP_LOADER_ID, null, this);
+
+        Log.d(TAG, "onCreate: STEP LIST" + recipeUri);
+        Log.d(TAG, "onCreate: TITLE " + getTitle());
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
@@ -76,12 +80,14 @@ public class StepsListActivity
 
         String[] projection = {
                 RecipeContract.RecipeSteps.COLUMN_RECIPE_ID,
-                RecipeContract.RecipeSteps.COLUMN_SHORT_DESCRIPTION,
-                RecipeContract.RecipeSteps.COLUMN_STEP_ID
+                RecipeContract.RecipeSteps.COLUMN_STEP_ID,
+                RecipeContract.RecipeSteps.COLUMN_SHORT_DESCRIPTION
         };
 
         Uri uri = RecipeContract.RecipeSteps
                 .BuildStepUriWithId(Long.parseLong(recipeUri.getLastPathSegment()));
+
+        Log.d(TAG, "onCreateLoader: URI" + uri);
 
         return new CursorLoader(this,
                 uri,
